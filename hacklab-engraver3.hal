@@ -173,7 +173,7 @@ net xenable => parport.0.pin-14-out
 # Get limit switch signals from PPT 10,12
 net home-x parport.0.pin-10-in => axis.0.home-sw-in
 net home-y parport.0.pin-12-in => axis.1.home-sw-in
-net home-w parport.0.pin-12-in => axis.8.home-sw-in
+net home-w parport.0.pin-13-in => axis.8.home-sw-in
 
 # Get E-stop signal from PPT 15
 net estop-ext parport.0.pin-15-in => iocontrol.0.emc-enable-in
