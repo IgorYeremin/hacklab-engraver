@@ -19,6 +19,7 @@ loadrt not names=not-mask-ffw,not-mask-not-empty,not-jogger
 loadrt xor2 names=xor2-mask-test
 loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final
 loadrt or2 names=or2-mask-command-done,or2-mask-not-ffw,or2-mask-read,or2-laser-gcode,or2-laser-fine
+loadrt encoder names=encoder-jogger
 
 
 # Fast thread for generating signals
@@ -128,7 +129,13 @@ net laser-zaxis <= comp-laser-zaxis.out
 net motion-zpos-fb => axis.2.motor-pos-fb
 
 # Generate fake jog to "retract" the Z axis automatically when spindle is off
-setp axis.2.jog-counts 1
+addf servo-thread not-jogger
+net jogger-pulse not-jogger.out => not-jogger.in
+
+setp encoder-jogger.counter-mode 1
+net jogger-pulse => encoder-jogger.phase-A
+net encoder-jogger.counts => axis.2.jog-counts
+
 setp axis.2.jog-scale 0.002
 net laser-spindle => axis.2.jog-enable
 
