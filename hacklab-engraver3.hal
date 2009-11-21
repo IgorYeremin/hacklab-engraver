@@ -15,7 +15,7 @@ loadrt charge_pump
 
 # Boring components that emc makes me load explicitly because it is a cunt
 loadrt comp names=comp-mask-lte,comp-laser-zaxis
-loadrt not names=not-mask-ffw,not-mask-not-empty
+loadrt not names=not-mask-ffw,not-mask-not-empty,not-jogger
 loadrt xor2 names=xor2-mask-test
 loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final
 loadrt or2 names=or2-mask-command-done,or2-mask-not-ffw,or2-mask-read,or2-laser-gcode,or2-laser-fine
@@ -126,6 +126,11 @@ net laser-zaxis <= comp-laser-zaxis.out
 # Loopback the Z motion controller so it always thinks
 # that it's exactly where it wants to be
 net motion-zpos-fb => axis.2.motor-pos-fb
+
+# Generate fake jog to "retract" the Z axis automatically when spindle is off
+setp axis.2.jog-counts 1
+setp axis.2.jog-scale 0.002
+net laser-spindle => axis.2.jog-enable
 
 # laser-final <= laser-spindle & (laser-digital | laser-zaxis | laser-gmask)
 addf or2-laser-gcode mask-thread
