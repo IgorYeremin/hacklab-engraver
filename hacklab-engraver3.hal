@@ -123,6 +123,10 @@ net motion-zpos-fb => comp-laser-zaxis.in0
 setp comp-laser-zaxis.in1 0
 net laser-zaxis <= comp-laser-zaxis.out
 
+# Loopback the Z motion controller so it always thinks
+# that it's exactly where it wants to be
+net motion-zpos-fb => axis.2.motor-pos-fb
+
 # laser-final <= laser-spindle & (laser-digital | laser-zaxis | laser-gmask)
 addf or2-laser-gcode mask-thread
 net laser-digital => or2-laser-gcode.in0
