@@ -106,8 +106,8 @@ net laser-gmask <= and2-laser-gmask.out
 
 addf streamer.0 mask-thread
 
-# Raster Mask - end
 #######################################################################
+# Laser on/off logic
 
 # coarse laser control, wired to spindle on/off (M3/M5), not realtime
 net laser-spindle <= motion.spindle-on
@@ -115,9 +115,11 @@ net laser-spindle <= motion.spindle-on
 # fine laser control, wired to digital output 0 (M62 P0/M63 P0), realtime
 net laser-digital <= motion.digital-out-00
 
-# legacy laser control, wired to Z < 0, can be used instead of M62/M63
+# Z axis laser control. Laser on iff motion controller's
+# commanded Z position is < 0
 addf comp-laser-zaxis servo-thread
-net motion-zpos-fb axis.2.joint-pos-fb => comp-laser-zaxis.in0
+net motion-zpos-fb <= axis.2.motor-pos-cmd
+net motion-zpos-fb => comp-laser-zaxis.in0
 setp comp-laser-zaxis.in1 0
 net laser-zaxis <= comp-laser-zaxis.out
 
@@ -137,8 +139,12 @@ net laser-fine => and2-laser-final.in0
 net laser-spindle => and2-laser-final.in1
 net laser-final <= and2-laser-final.out
 
-# laser-final => hardware
+# laser-final => PPT 1
 net laser-final => parport.0.pin-01-out
+
+
+##################################################
+# Motion
 
 # Wire stepmotor signals to PPT pins
 net xdir => parport.0.pin-02-out
@@ -170,6 +176,7 @@ setp stepgen.0.stepspace 15200
 setp stepgen.0.dirhold 15200
 setp stepgen.0.dirsetup 15200
 setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+
 net xpos-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
 net xpos-fb stepgen.0.position-fb => axis.0.motor-pos-fb
 net xstep <= stepgen.0.step
@@ -183,6 +190,7 @@ setp stepgen.1.stepspace 15200
 setp stepgen.1.dirhold 15200
 setp stepgen.1.dirsetup 15200
 setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
+
 net ypos-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
 net ypos-fb stepgen.1.position-fb => axis.1.motor-pos-fb
 net ystep <= stepgen.1.step
@@ -196,6 +204,7 @@ setp stepgen.3.stepspace 0
 setp stepgen.3.dirhold 15200
 setp stepgen.3.dirsetup 15200
 setp stepgen.3.maxaccel [AXIS_8]STEPGEN_MAXACCEL
+
 net wpos-cmd axis.8.motor-pos-cmd => stepgen.3.position-cmd
 net wpos-fb stepgen.3.position-fb => axis.8.motor-pos-fb
 net wstep <= stepgen.3.step
@@ -206,3 +215,8 @@ net wenable axis.8.amp-enable-out => stepgen.3.enable
 net charge-pump charge-pump.out => parport.0.pin-17-out 
 setp parport.0.pin-17-out-reset 1
 setp charge-pump.enable 1
+
+
+##################################################
+# Other Logics
+
