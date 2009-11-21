@@ -17,7 +17,7 @@ loadrt charge_pump
 loadrt comp names=comp-mask-lte,comp-discrete-z
 loadrt not names=not-mask-ffw,not-mask-not-empty
 loadrt xor2 names=xor2-mask-test
-loadrt and2 names=and2-mask-forward,and2-laser-mask,and2-laser-final
+loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final
 loadrt or2 names=or2-mask-command-done,or2-mask-not-ffw,or2-mask-read,or2-laser-gcode,or2-laser-fine
 
 
@@ -68,7 +68,7 @@ net mask-test <= xor2-mask-test.out
 
 # if job is running, read only if test is true or reset
 # if job is not running, read until reset
-# mask-read <= (laser-coarse && (mask-test || mask-reset)) || !(laser-coarse || mask-reset)
+# mask-read <= (laser-spindle && (mask-test || mask-reset)) || !(laser-spindle || mask-reset)
 
 addf or2-mask-command-done mask-thread
 net mask-test => or2-mask-command-done.in0
@@ -76,12 +76,12 @@ net mask-reset => or2-mask-command-done.in1
 net mask-command-done <= or2-mask-command-done.out
 
 addf and2-mask-forward mask-thread
-net laser-coarse => and2-mask-forward.in0
+net laser-spindle => and2-mask-forward.in0
 net mask-command-done => and2-mask-forward.in1
 net mask-forward <= and2-mask-forward.out
 
 addf or2-mask-not-ffw mask-thread
-net laser-coarse => or2-mask-not-ffw.in0
+net laser-spindle => or2-mask-not-ffw.in0
 net mask-reset => or2-mask-not-ffw.in1
 net mask-not-ffw <= or2-mask-not-ffw.out
 
@@ -94,15 +94,15 @@ net mask-forward => or2-mask-read.in0
 net mask-ffw => or2-mask-read.in1
 net mask-read <= or2-mask-read.out
 
-# laser-mask <=  mask-not-empty && mask-beam
+# laser-gmask <=  mask-not-empty && mask-beam
 addf not-mask-not-empty mask-thread
 net mask-empty => not-mask-not-empty.in
 net mask-not-empty <= not-mask-not-empty.out
 
-addf and2-laser-mask mask-thread
-net mask-beam => and2-laser-mask.in0
-net mask-not-empty => and2-laser-mask.in1
-net laser-mask <= and2-laser-mask.out
+addf and2-laser-gmask mask-thread
+net mask-beam => and2-laser-gmask.in0
+net mask-not-empty => and2-laser-gmask.in1
+net laser-gmask <= and2-laser-gmask.out
 
 addf streamer.0 mask-thread
 
@@ -110,10 +110,10 @@ addf streamer.0 mask-thread
 #######################################################################
 
 # coarse laser control, wired to spindle on/off (M3/M5), not realtime
-net laser-coarse <= motion.spindle-on
+net laser-spindle <= motion.spindle-on
 
 # fine laser control, wired to digital output 0 (M62 P0/M63 P0), realtime
-net laser-gate <= motion.digital-out-00
+net laser-digital <= motion.digital-out-00
 
 # legacy laser control, wired to Z < 0, can be used instead of M62/M63
 addf comp-discrete-z servo-thread
@@ -122,20 +122,20 @@ net motion-zpos-fb => comp-discrete-z.in0
 setp comp-discrete-z.in1 0
 net discrete-z <= comp-discrete-z.out
 
-# laser-final <= laser-coarse & (laser-gate | discrete-z | laser-mask)
+# laser-final <= laser-spindle & (laser-digital | discrete-z | laser-gmask)
 addf or2-laser-gcode mask-thread
-net laser-gate => or2-laser-gcode.in0
+net laser-digital => or2-laser-gcode.in0
 net discrete-z => or2-laser-gcode.in1
 net laser-gcode <= or2-laser-gcode.out
 
 addf or2-laser-fine mask-thread
 net laser-gcode => or2-laser-fine.in0
-net laser-mask => or2-laser-fine.in1
+net laser-gmask => or2-laser-fine.in1
 net laser-fine <= or2-laser-fine.out
 
 addf and2-laser-final mask-thread
 net laser-fine => and2-laser-final.in0
-net laser-coarse => and2-laser-final.in1
+net laser-spindle => and2-laser-final.in1
 net laser-final <= and2-laser-final.out
 
 # laser-final => hardware
