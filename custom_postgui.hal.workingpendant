@@ -31,21 +31,15 @@ addf and2-machineon 	servo-thread
 addf not-machinetoggle	servo-thread
 
 # Buttons 6 and 8 enable jogging and set the jog speed range
-# Button 5 enables jogging and sets a focus-appropriate speed
-loadrt mux8 names=mux8-jogspeed
-addf mux8-jogspeed     servo-thread
-setp mux8-jogspeed.in0 0
-setp mux8-jogspeed.in1 50
-setp mux8-jogspeed.in2 150
-setp mux8-jogspeed.in3 300
-setp mux8-jogspeed.in4 5
-setp mux8-jogspeed.in5 50
-setp mux8-jogspeed.in6 150
-setp mux8-jogspeed.in7 300
-net jog-low        mux8-jogspeed.sel0 <= input.0.btn-pinkie
-net jog-high       mux8-jogspeed.sel1 <= input.0.btn-base2
-net jog-focus      mux8-jogspeed.sel2 <= input.0.btn-top2
-net jog-speed halui.jog-speed    <= mux8-jogspeed.out
+loadrt mux4 names=mux4-jogspeed
+addf mux4-jogspeed     servo-thread
+setp mux4-jogspeed.in0 0
+setp mux4-jogspeed.in1 50
+setp mux4-jogspeed.in2 150
+setp mux4-jogspeed.in3 300
+net jog-low   mux4-jogspeed.sel0 <= input.0.btn-pinkie
+net jog-high  mux4-jogspeed.sel1 <= input.0.btn-base2
+net jog-speed halui.jog-speed    <= mux4-jogspeed.out
 
 # Right joystick left/right controls X axis
 net joy-x-jog halui.jog.0.analog <= input.0.abs-z-position
@@ -57,18 +51,18 @@ setp sum2-reversey.gain0 -1
 net reverse-y sum2-reversey.in0 <= input.0.abs-rz-position
 net joy-y-jog halui.jog.1.analog <= sum2-reversey.out
 
-# Left joystick up/down controls W axis (table up/down)
-addf sum2-reversew servo-thread
-setp sum2-reversew.gain0 -1
-net reverse-w sum2-reversew.in0 <= input.0.abs-y-position
-net joy-w-jog halui.jog.8.analog <= sum2-reversew.out
+# Left joystick up/down controls W axis coarsely (table up/down)
+#addf sum2-reversew servo-thread
+#setp sum2-reversew.gain0 -1
+#net reverse-w sum2-reversew.in0 <= input.0.abs-y-position
+#net joy-w-jog halui.jog.8.analog <= sum2-reversew.out
 
-# D-pad up/down single-steps W axis (table height)
-# well, it will once i can figure out how to make this work -sarahemm
-#addf sum2-focusslowly servo-thread
-#setp sum2-focusslowly.gain0 0.5
-#net dpad-focus sum2-focusslowly.in0 <= input.0.abs-hat0y-position
-#net dpad-w-jog halui.jog.8.analog <= sum2-focusslowly.out
+# D-pad up/down controls W axis (table height)
+addf sum2-focusslowly servo-thread
+setp sum2-focusslowly.gain0 0.5
+net dpad-focus sum2-focusslowly.in0 <= input.0.abs-hat0y-position
+net dpad-w-jog halui.jog.8.analog <= sum2-focusslowly.out
+
 #setp axis.8.jog-scale 0.1
 #setp axis.8.jog-enable TRUE
 #net dpad-w-jog axis.8.jog-counts <= input.0.abs-hat0y-counts

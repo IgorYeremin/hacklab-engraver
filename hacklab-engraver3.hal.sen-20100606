@@ -15,9 +15,9 @@ loadrt charge_pump
 
 # Boring components that emc makes me load explicitly because it is a cunt
 loadrt comp names=comp-mask-lte,comp-laser-zaxis
-loadrt not names=not-mask-ffw,not-mask-not-empty,not-jogger,not-amused,not-machinetoggle
+loadrt not names=not-mask-ffw,not-mask-not-empty,not-jogger,not-amused
 loadrt xor2 names=xor2-mask-test
-loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final,and2-jogger,and2-machineoff,and2-machineon
+loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final,and2-jogger
 loadrt or2 names=or2-mask-command-done,or2-mask-not-ffw,or2-mask-read,or2-laser-gcode,or2-laser-fine
 loadrt encoder num_chan=1
 
@@ -243,4 +243,4 @@ setp charge-pump.enable 1
 ##################################################
 # Other Logics
 
-loadusr linuxcncrsh
+loadusr emcrsh
