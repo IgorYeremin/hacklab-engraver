@@ -17,7 +17,7 @@ loadrt charge_pump
 loadrt comp names=comp-mask-lte,comp-laser-zaxis
 loadrt not names=not-mask-ffw,not-mask-not-empty,not-jogger,not-amused,not-machinetoggle
 loadrt xor2 names=xor2-mask-test
-loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final,and2-jogger,and2-machineoff,and2-machineon
+loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final,and2-jogger,and2-machineoff,and2-machineon,and2-laser-final-final
 loadrt or2 names=or2-mask-command-done,or2-mask-not-ffw,or2-mask-read,or2-laser-gcode,or2-laser-fine
 loadrt encoder num_chan=1
 
@@ -157,13 +157,29 @@ net laser-gcode => or2-laser-fine.in0
 net laser-gmask => or2-laser-fine.in1
 net laser-fine <= or2-laser-fine.out
 
+loadrt laserfreq
+addf laserfreq.0.make-pulses mask-thread
+addf laserfreq.0.update servo-thread
+setp laserfreq.0.duration [LASER]PULSED_CUT_DURATION
+setp laserfreq.0.min-off-duration [LASER]PULSED_CUT_CONTINUOUS
+net current-vel motion.current-vel => laserfreq.0.velocity
+net laser-freq motion.spindle-speed-out => laserfreq.0.pulse-per-unit
+setp laserfreq.0.enable 1
+net laser-pulsed <= laserfreq.0.pulse
+
+
 addf and2-laser-final mask-thread
 net laser-fine => and2-laser-final.in0
 net laser-spindle => and2-laser-final.in1
 net laser-final <= and2-laser-final.out
 
+addf and2-laser-final-final mask-thread
+net laser-final => and2-laser-final-final.in0
+net laser-pulsed => and2-laser-final-final.in1
+net laser-final-final <= and2-laser-final-final.out
+
 # laser-final => PPT 1
-net laser-final => parport.0.pin-01-out
+net laser-final-final => parport.0.pin-01-out
 
 
 ##################################################
