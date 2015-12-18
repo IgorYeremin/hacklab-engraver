@@ -23,9 +23,10 @@ component_hash={}
 
 for line in f:
         comp_name, pin_type, pin_dir, pin_value, pin_name = line.split()[:5]
-        if not component_hash.has_key(comp_name):
-                component_hash[comp_name] = [];
-        component_hash[comp_name].append(pin_name)
+        part_name, part_pin_name = pin_name.rsplit('.', 1)
+        if not component_hash.has_key(part_name):
+                component_hash[part_name] = [];
+        component_hash[part_name].append(pin_name)
 
 for comp in component_hash.keys():
         comp_labels = ["<" + c + "> " + c for c in component_hash[comp]]
