@@ -24,6 +24,8 @@ component_hash={}
 for line in f:
         comp_name, pin_type, pin_dir, pin_value, pin_name = line.split()[:5]
         part_name, part_pin_name = pin_name.rsplit('.', 1)
+        if pin_name.startswith("motion."):
+            part_name = pin_name
         if not component_hash.has_key(part_name):
                 component_hash[part_name] = [];
         component_hash[part_name].append(pin_name)
