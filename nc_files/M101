@@ -8,14 +8,20 @@
 # to stream it to the HAL while AXIS executes the
 # motion code.
 #
-# This file must be symlinked to the ~/emc2/nc_files dir
 
-import emc, os, sys, threading, gtk, time, popen2, signal, select
+import linuxcnc, os, sys, threading, gtk, time, popen2, signal, select
 
-os.chdir("/home/hacklab/linuxcnc/configs/hacklab-engraver3")
-ini = emc.ini("hacklab-engraver3.ini")
-emc.nmlfile = ini.find("EMC","NML_FILE")
-s = emc.stat()
+# cwd should be config directory
+ini = linuxcnc.ini("hacklab-engraver3.ini")
+
+machine_name = ini.find('EMC', 'MACHINE') or "unknown!"
+print "machine name: ", machine_name
+
+nmlfile = ini.find("EMC", "NML_FILE")
+if nmlfile:
+    linuxcnc.nmlfile = os.path.join(os.path.dirname(os.getcwd()), nmlfile)
+
+s = linuxcnc.stat()
 s.poll()
 ngc = s.file
 (base,ext) = os.path.splitext(ngc)
