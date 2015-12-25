@@ -73,3 +73,9 @@ net joy-w-jog halui.jog.8.analog <= sum2-reversew.out
 #setp axis.8.jog-enable TRUE
 #net dpad-w-jog axis.8.jog-counts <= input.0.abs-hat0y-counts
 
+
+# laser power display
+net laser-freq => pyvcp.ppi-display
+net current-vel => pyvcp.velocity
+net full-speed laserfreq.0.continuous => pyvcp.constant-on
+
