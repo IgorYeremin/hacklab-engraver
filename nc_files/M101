@@ -12,7 +12,11 @@
 import linuxcnc, os, sys, threading, gtk, time, popen2, signal, select
 
 # cwd should be config directory
-ini = linuxcnc.ini("hacklab-engraver3.ini")
+try:
+  ini_name = os.environ['INI_FILE_NAME']
+except KeyError:
+  ini_name = "hacklab-engraver3.ini"
+ini = linuxcnc.ini(ini_name)
 
 machine_name = ini.find('EMC', 'MACHINE') or "unknown!"
 print "machine name: ", machine_name
