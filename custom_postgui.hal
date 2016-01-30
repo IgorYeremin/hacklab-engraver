@@ -37,11 +37,11 @@ addf mux8-jogspeed     servo-thread
 setp mux8-jogspeed.in0 0
 setp mux8-jogspeed.in1 50
 setp mux8-jogspeed.in2 150
-setp mux8-jogspeed.in3 300
+setp mux8-jogspeed.in3 600
 setp mux8-jogspeed.in4 5
 setp mux8-jogspeed.in5 50
 setp mux8-jogspeed.in6 150
-setp mux8-jogspeed.in7 300
+setp mux8-jogspeed.in7 600
 net jog-low        mux8-jogspeed.sel0 <= input.0.btn-pinkie
 net jog-high       mux8-jogspeed.sel1 <= input.0.btn-base2
 net jog-focus      mux8-jogspeed.sel2 <= input.0.btn-top2

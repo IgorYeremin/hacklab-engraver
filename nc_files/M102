@@ -27,6 +27,8 @@ if nmlfile:
 
 s = linuxcnc.stat()
 s.poll()
+coord_offset = s.g5x_offset
+
 ngc = s.file
 (base,ext) = os.path.splitext(ngc)
 gmask = base+".gmask"
@@ -73,14 +75,23 @@ else:
       if pbar.poll() != -1: raise
 
       #if len(w) > 0:
-      fout.write(line)
+      if line.count(" ") == 3:
+        reset, beam, xop, xarg = line.split(" ")
+        # offset the x coordinate
+        machine_x = float(xarg) + coord_offset[0]
+        fout.write("%s %s %s %.3f\n" % (reset, beam, xop, machine_x))
+        print("%s %s %s %.3f" % (reset, beam, xop, machine_x))
+      else:
+        fout.write(line)
+        print(line)
+
       count += 1
       #elif len(e) > 0:
       #  os.system("zenity --error --text 'Error writing to halstreamer. Job may not finish.'")
       #  raise
 
       pbar.tochild.write(str(int(100.0*count/total_lines))+"\n")
- 
+
   finally:
     print "...cleaning up..."
     #fin.close()

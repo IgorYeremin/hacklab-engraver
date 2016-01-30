@@ -2,17 +2,18 @@
 # If you make changes to this file, they will be
 # overwritten when you run stepconf again
 
-loadrt threads name1=mask-thread period1=100000
+loadrt threads name1=mask-thread period1=[EMCMOT]BASE_PERIOD
 
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
 loadrt hal_parport cfg=0x378
-setp parport.0.reset-time 100000
+#Critical to the stepgen.doublestep configuration
+setp parport.0.reset-time 12000
 loadrt stepgen step_type=0,0,0,0
 loadrt charge_pump
 
 
-# Boring components that emc makes me load explicitly because it is a cunt
+# Boring components that emc makes us load explicitly
 loadrt comp names=comp-mask-lte,comp-laser-zaxis
 loadrt not names=not-mask-ffw,not-mask-not-empty,not-jogger,not-amused,not-machinetoggle
 loadrt xor2 names=xor2-mask-test
@@ -169,34 +170,41 @@ net laser-final => parport.0.pin-01-out
 # Motion
 
 # Wire stepmotor signals to PPT pins
-net xdir => parport.0.pin-02-out
-net xstep => parport.0.pin-03-out
-setp parport.0.pin-03-out-reset 1
-net ydir => parport.0.pin-04-out
-net ystep => parport.0.pin-05-out
-setp parport.0.pin-05-out-reset 1
-net wdir => parport.0.pin-06-out
-net wstep => parport.0.pin-07-out
-setp parport.0.pin-07-out-reset 1
+net xstep => parport.0.pin-02-out
+setp parport.0.pin-02-out-reset 0
+net xdir => parport.0.pin-03-out
 
-# Send X amp enable to PPT 14. This signal actually controls
+net ystep => parport.0.pin-04-out
+setp parport.0.pin-04-out-reset 0
+net ydir => parport.0.pin-05-out
+
+net wstep => parport.0.pin-06-out
+setp parport.0.pin-06-out-reset 0
+net wdir => parport.0.pin-07-out
+
+
+# Send X amp enable to PPT 16. This signal actually controls
 # _all_ motors on the machine.
-net xenable => parport.0.pin-14-out
+net xenable => parport.0.pin-16-out
 
-# Get limit switch signals from PPT 10,12
-net home-x parport.0.pin-10-in => axis.0.home-sw-in
+# Get limit switch signals from PPT 13,12
+net home-x parport.0.pin-13-in => axis.0.home-sw-in
 net home-y parport.0.pin-12-in => axis.1.home-sw-in
-net home-w parport.0.pin-13-in => axis.8.home-sw-in
+#net limit-w parport.0.pin-11-in => axis.8.neg-lim-sw-in
 
 # Get E-stop signal from PPT 15
 net estop-ext parport.0.pin-15-in => iocontrol.0.emc-enable-in
 
 # X stepgen
 setp stepgen.0.position-scale [AXIS_0]SCALE
-setp stepgen.0.steplen 15200
-setp stepgen.0.stepspace 15200
-setp stepgen.0.dirhold 15200
-setp stepgen.0.dirsetup 15200
+#DM442 Datasheet says:
+#steplen and stepspace 2.5us + DB25 breakout latency
+#dirhold and dirsetup 5us + DB25 breakout latency
+#Round up to 10us
+setp stepgen.0.steplen 10000
+setp stepgen.0.stepspace 10000 #stepgen.doublestep in use
+setp stepgen.0.dirhold 10000
+setp stepgen.0.dirsetup 10000
 setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
 
 net xpos-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
@@ -207,10 +215,14 @@ net xenable axis.0.amp-enable-out => stepgen.0.enable
 
 # Y stepgen
 setp stepgen.1.position-scale [AXIS_1]SCALE
-setp stepgen.1.steplen 15200
-setp stepgen.1.stepspace 15200
-setp stepgen.1.dirhold 15200
-setp stepgen.1.dirsetup 15200
+#DM442 Datasheet says:
+#steplen and stepspace 2.5us + DB25 breakout latency
+#dirhold and dirsetup 5us + DB25 breakout latency
+#Round up to 10us
+setp stepgen.1.steplen 10000
+setp stepgen.1.stepspace 10000 #10000 - removed since stepgen.doublestep in use
+setp stepgen.1.dirhold 10000
+setp stepgen.1.dirsetup 10000
 setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
 
 net ypos-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
@@ -221,10 +233,14 @@ net yenable axis.1.amp-enable-out => stepgen.1.enable
 
 # W stepgen
 setp stepgen.3.position-scale [AXIS_8]SCALE
-setp stepgen.3.steplen 1
-setp stepgen.3.stepspace 0
-setp stepgen.3.dirhold 15200
-setp stepgen.3.dirsetup 15200
+#DM442 Datasheet says:
+#steplen and stepspace 2.5us + DB25 breakout latency
+#dirhold and dirsetup 5us + DB25 breakout latency
+#Round up to 10us
+setp stepgen.3.steplen 10000
+setp stepgen.3.stepspace 10000 #10000 - removed since stepgen.doublestep in use
+setp stepgen.3.dirhold 10000
+setp stepgen.3.dirsetup 10000
 setp stepgen.3.maxaccel [AXIS_8]STEPGEN_MAXACCEL
 
 net wpos-cmd axis.8.motor-pos-cmd => stepgen.3.position-cmd
@@ -235,7 +251,7 @@ net wenable axis.8.amp-enable-out => stepgen.3.enable
 
 # Send charge pump signal to PPT 17
 net charge-pump charge-pump.out => parport.0.pin-17-out 
-setp parport.0.pin-17-out-reset 1
+setp parport.0.pin-17-out-reset 0
 setp charge-pump.enable 1
 
 
