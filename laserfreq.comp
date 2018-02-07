@@ -42,7 +42,7 @@ FUNCTION(make_pulses) {
     if (accum > interval) {
 	accum -= interval;
 	if (accum > interval)
-	    accum = 0.0;
+	    accum = 0;
 	continuous = (pulse_remain > 0);
 	pulse_remain = duration;
     }
