@@ -1,0 +1,82 @@
+= same functionality as parallel port =
+- http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html
+- board firmware is 5i25_5ABOBx2_34
+	- matching step/dir, pwm on 1
+- optos on breakout board are too slow for pulses shorter than 10us, compared to driver 2.5us minimum
+	- remove optos
+	- switch pin configuration to open drain
+	- wire PUL+/DIR+ to +5v
+	- wire PUL-/DIR- to breakout pins
+- bad! when linuxcnc quits, the board pulls laser pin high and fires it until charge pump times out
+	- put inverter on output?
+- bad! graster stops working after a couple mm
+	- check that "wait for this prompt to disapear" prompt actually appears and waits
+	- prompt is created using zenity, probably need to install it
+
+= ppi =
+- reuse stepgen or pwm?
+	- match timing to laser waveform
+	- feed velocity from traj planner
+- replace front panel switches with override knob?
+- gcode postprocessor script to calculate speed/feed for given power
+
+= graster in fpga =
+- replicate graster functionality in fpga
+	- buffer with next X position, comparison direction, power level
+		- needs fpga firmware changes
+			linuxcnc build system with outdated firmware:
+				https://github.com/LinuxCNC/hostmot2-firmware/
+			latest firmware from mesa:
+				http://www.mesanet.com/software/parallel/5i25.zip
+			build tools (requires account and activation of free license): ISE 13.4 WebPack
+				https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools/archive.html
+		- needs hostmot2 linuxcnc driver changes
+			https://github.com/LinuxCNC/linuxcnc/tree/master/src/hal/drivers/mesa-hostmot2
+	- comparator of X position
+	- feed power level to ppi driver
+
+= Hardware specifics =
+
+== db25 pinout ==
+pin|parport pin name|direction (laser side)|signal
+1	~c0	in	laser
+2	d0	in	x_step
+3	d1	in	x_dir
+4	d2	in	y_step
+5	d3	in	y_dir
+6	d4	in	z_step
+7	d5	in	z_dir
+8	d6
+9	d7
+10	s6	out	x_home
+11	s7
+12	s5	out	y_home
+13	s4	out	x_home
+14	~c1
+15	s3	out	estop
+16	c2	in	amp_en
+17	~c3	in	chrg_pmp
+
+18	gnd
+--	gnd
+25	gnd
+
+* 4 pins free + 17 on second db25 connector
+
+== laser pwm signal ==
+5-20kHz (5 recommended)
+requires 1us tickle pulse at 5kHz for fast power on
+Andrew's PIC code uses PWM at 4882.8125Hz, with 204.8us tickle, 3276.8us(16/255 duty) - 49152us(240/255 duty) power, 0 duty cycle when estopped/etc
+
+== charge pump ==
+charge_pump decrimented every 50ms
+incremented on rising edge
+
+
+== stepper driver ==
+leadshine dm442
+max input pulse rate: 200khz
+min delays:
+	ena -> dir = 5us
+	dir -> pul = 5us
+	pulse high/low = 2.5us
