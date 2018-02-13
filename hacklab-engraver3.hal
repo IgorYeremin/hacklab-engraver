@@ -7,7 +7,7 @@ loadrt trivkins
 # graster thread
 loadrt threads name1=mask-thread period1=[EMCMOT]BASE_PERIOD
 # motion planner without base thread (offloaded to fpga)
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
 
 # mesa fpga driver
 loadrt hostmot2
