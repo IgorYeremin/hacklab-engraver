@@ -4,10 +4,10 @@
 
 
 loadrt trivkins
-# motion planner without base thread (offloaded to fpga)
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 # graster thread
 loadrt threads name1=mask-thread period1=[EMCMOT]BASE_PERIOD
+# motion planner without base thread (offloaded to fpga)
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 
 # mesa fpga driver
 loadrt hostmot2
@@ -36,7 +36,7 @@ addf motion-command-handler       servo-thread
 addf motion-controller            servo-thread
 addf pid.x.do-pid-calcs           servo-thread
 addf pid.y.do-pid-calcs           servo-thread
-addf pid.z.do-pid-calcs           servo-thread
+addf pid.w.do-pid-calcs           servo-thread
 addf hm2_5i25.0.write             servo-thread
 addf charge-pump                  servo-thread
 
