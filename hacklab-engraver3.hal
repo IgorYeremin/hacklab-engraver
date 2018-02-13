@@ -179,6 +179,7 @@ net laser-final => hm2_5i25.0.gpio.000.out
 # Send X amp enable to DB25 pin 16. This signal actually controls
 # _all_ motors on the machine.
 setp hm2_5i25.0.gpio.005.is_output true
+setp hm2_5i25.0.gpio.005.invert_output true
 net xenable => hm2_5i25.0.gpio.005.out
 
 # Get limit switch signals from DB25 pin 13,12
