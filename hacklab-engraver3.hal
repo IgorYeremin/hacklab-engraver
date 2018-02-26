@@ -3,9 +3,10 @@
 # overwritten when you run stepconf again
 
 
-loadrt trivkins
+loadrt [KINS]KINEMATICS
+#autoconverted  trivkins
 loadrt threads name1=mask-thread period1=[EMCMOT]BASE_PERIOD
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[KINS]JOINTS 
 loadrt hal_parport cfg=0x378
 #Critical to the stepgen.doublestep configuration
 setp parport.0.reset-time 12000
@@ -59,7 +60,7 @@ net mask-empty     <= streamer.0.empty
 net mask-read => streamer.0.enable
 
 # hardware reported X axis position
-net motion-xpos-fb <= axis.0.joint-pos-fb
+net motion-xpos-fb <= joint.0.pos-fb
 
 # mask-lte <= motion-xpos-fb < mask-xarg
 addf comp-mask-lte mask-thread
@@ -125,13 +126,13 @@ net laser-digital <= motion.digital-out-00
 # Z axis laser control. Laser on iff motion controller's
 # commanded Z position is < 0
 addf comp-laser-zaxis servo-thread
-net motion-zpos-joint axis.2.joint-pos-cmd => comp-laser-zaxis.in0
+net motion-zpos-joint joint.2.pos-cmd => comp-laser-zaxis.in0
 setp comp-laser-zaxis.in1 0
 net laser-zaxis <= comp-laser-zaxis.out
 
 # Loopback the Z motion controller so it always thinks
 # that it's exactly where it wants to be
-net motion-zpos-motor axis.2.motor-pos-cmd => axis.2.motor-pos-fb
+net motion-zpos-motor joint.2.motor-pos-cmd => joint.2.motor-pos-fb
 
 # Generate fake jog to "retract" the Z axis automatically
 # when spindle is off and Z < 0
@@ -142,15 +143,17 @@ addf encoder.update-counters servo-thread
 addf encoder.capture-position servo-thread
 setp encoder.0.counter-mode 1
 net jogger-pulse => encoder.0.phase-A
-net jogger-counts encoder.0.counts => axis.2.jog-counts
+net jogger-counts encoder.0.counts => joint.2.jog-counts axis.z.jog-counts
 
 addf not-amused servo-thread
-setp axis.2.jog-scale 0.001
+setp joint.2.jog-scale 0.001
+setp axis.z.jog-scale 0.001
+
 net laser-spindle => not-amused.in
 addf and2-jogger servo-thread
 net this-sucks not-amused.out => and2-jogger.in0
 net laser-zaxis => and2-jogger.in1
-net blow-me and2-jogger.out => axis.2.jog-enable
+net blow-me and2-jogger.out => axis.z.jog-enable
 
 # laser-final <= laser-spindle & (laser-digital | laser-zaxis | laser-gmask)
 addf or2-laser-gcode mask-thread
@@ -210,7 +213,7 @@ net home-y parport.0.pin-12-in-not => axis.1.home-sw-in
 net estop-ext parport.0.pin-15-in => iocontrol.0.emc-enable-in
 
 # X stepgen
-setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.0.position-scale [JOINT_0]SCALE
 #DM442 Datasheet says:
 #steplen and stepspace 2.5us + DB25 breakout latency
 #dirhold and dirsetup 5us + DB25 breakout latency
@@ -219,16 +222,16 @@ setp stepgen.0.steplen [STEPGEN]STEP_LEN
 setp stepgen.0.stepspace [STEPGEN]STEP_SPACE
 setp stepgen.0.dirhold [STEPGEN]DIR_HOLD
 setp stepgen.0.dirsetup [STEPGEN]DIR_SETUP
-setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
 
-net xpos-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
-net xpos-cmd => axis.0.motor-pos-fb
+net xpos-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd
+net xpos-cmd => joint.0.motor-pos-fb
 net xstep <= stepgen.0.step
 net xdir <= stepgen.0.dir
-net xenable axis.0.amp-enable-out => stepgen.0.enable
+net xenable joint.0.amp-enable-out => stepgen.0.enable
 
 # Y stepgen
-setp stepgen.1.position-scale [AXIS_1]SCALE
+setp stepgen.1.position-scale [JOINT_1]SCALE
 #DM442 Datasheet says:
 #steplen and stepspace 2.5us + DB25 breakout latency
 #dirhold and dirsetup 5us + DB25 breakout latency
@@ -237,16 +240,16 @@ setp stepgen.1.steplen [STEPGEN]STEP_LEN
 setp stepgen.1.stepspace [STEPGEN]STEP_SPACE
 setp stepgen.1.dirhold [STEPGEN]DIR_HOLD
 setp stepgen.1.dirsetup [STEPGEN]DIR_SETUP
-setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
 
-net ypos-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
-net ypos-cmd => axis.1.motor-pos-fb
+net ypos-cmd joint.1.motor-pos-cmd => stepgen.1.position-cmd
+net ypos-cmd => joint.1.motor-pos-fb
 net ystep <= stepgen.1.step
 net ydir <= stepgen.1.dir
-net yenable axis.1.amp-enable-out => stepgen.1.enable
+net yenable joint.1.amp-enable-out => stepgen.1.enable
 
 # W stepgen
-setp stepgen.3.position-scale [AXIS_8]SCALE
+setp stepgen.3.position-scale [JOINT_8]SCALE
 #DM442 Datasheet says:
 #steplen and stepspace 2.5us + DB25 breakout latency
 #dirhold and dirsetup 5us + DB25 breakout latency
@@ -255,13 +258,13 @@ setp stepgen.3.steplen [STEPGEN]STEP_LEN
 setp stepgen.3.stepspace [STEPGEN]STEP_SPACE
 setp stepgen.3.dirhold [STEPGEN]DIR_HOLD
 setp stepgen.3.dirsetup [STEPGEN]DIR_SETUP
-setp stepgen.3.maxaccel [AXIS_8]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_8]STEPGEN_MAXACCEL
 
-net wpos-cmd axis.8.motor-pos-cmd => stepgen.3.position-cmd
-net wpos-fb stepgen.3.position-fb => axis.8.motor-pos-fb
+net wpos-cmd joint.8.motor-pos-cmd => stepgen.3.position-cmd
+net wpos-fb stepgen.3.position-fb => joint.8.motor-pos-fb
 net wstep <= stepgen.3.step
 net wdir <= stepgen.3.dir
-net wenable axis.8.amp-enable-out => stepgen.3.enable
+net wenable joint.8.amp-enable-out => stepgen.3.enable
 
 # Send charge pump signal to PPT 17
 net charge-pump charge-pump.out => parport.0.pin-17-out 
