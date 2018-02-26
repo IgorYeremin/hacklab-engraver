@@ -249,7 +249,7 @@ net ydir <= stepgen.1.dir
 net yenable joint.1.amp-enable-out => stepgen.1.enable
 
 # W stepgen
-setp stepgen.3.position-scale [JOINT_8]SCALE
+setp stepgen.3.position-scale [JOINT_3]SCALE
 #DM442 Datasheet says:
 #steplen and stepspace 2.5us + DB25 breakout latency
 #dirhold and dirsetup 5us + DB25 breakout latency
@@ -258,7 +258,7 @@ setp stepgen.3.steplen [STEPGEN]STEP_LEN
 setp stepgen.3.stepspace [STEPGEN]STEP_SPACE
 setp stepgen.3.dirhold [STEPGEN]DIR_HOLD
 setp stepgen.3.dirsetup [STEPGEN]DIR_SETUP
-setp stepgen.3.maxaccel [JOINT_8]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 
 net wpos-cmd joint.3.motor-pos-cmd => stepgen.3.position-cmd
 net wpos-fb stepgen.3.position-fb => joint.3.motor-pos-fb
