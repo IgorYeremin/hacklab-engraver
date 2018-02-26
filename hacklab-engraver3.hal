@@ -260,11 +260,11 @@ setp stepgen.3.dirhold [STEPGEN]DIR_HOLD
 setp stepgen.3.dirsetup [STEPGEN]DIR_SETUP
 setp stepgen.3.maxaccel [JOINT_8]STEPGEN_MAXACCEL
 
-net wpos-cmd joint.8.motor-pos-cmd => stepgen.3.position-cmd
-net wpos-fb stepgen.3.position-fb => joint.8.motor-pos-fb
+net wpos-cmd joint.3.motor-pos-cmd => stepgen.3.position-cmd
+net wpos-fb stepgen.3.position-fb => joint.3.motor-pos-fb
 net wstep <= stepgen.3.step
 net wdir <= stepgen.3.dir
-net wenable joint.8.amp-enable-out => stepgen.3.enable
+net wenable joint.3.amp-enable-out => stepgen.3.enable
 
 # Send charge pump signal to PPT 17
 net charge-pump charge-pump.out => parport.0.pin-17-out 
