@@ -2,7 +2,7 @@ component laserpwmcalc "Compute laser PWM value from required power, current vel
 pin in float power_in = 0 "Required power density (power fraction/machine unit) = material severance energy (J/mm^2) * material thickness (mm) / machine output power (W)";
 pin in float vel_in "Current velocity from motion.current-vel";
 pin in float requested_vel_in "motion.requested-vel";
-pin in bit raster_in = 1 "Raster power scale factor. From graster";
+pin in float raster_in = 1 "Raster power scale factor. From graster";
 pin in bit raster_on = 1 "Raster beam allow. From graster";
 pin in bit digital_in = 1 "Fast, motion synchronized switch from motion.digital-out";
 pin in bit virtual_z_in = 1 "Virtual Z-axis beam output.";
@@ -26,7 +26,7 @@ FUNCTION(_) {
 	double pwm;
 
 	if (beam_on) {
-		desired_power = power_in * (raster_on ? raster_in * 1.0 : 1.0) * override_in;
+		desired_power = power_in * (raster_on ? raster_in : 1.0) * override_in;
 	}
 	if(desired_power > 0 && requested_vel_in > 0)
 	{

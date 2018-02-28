@@ -56,10 +56,14 @@ addf charge-pump                  servo-thread
 #   xop:    X axis comparison operation 0=less-or-equal 1=greater
 #   xarg:   X axis comparison operand
 
-loadrt streamer depth=256 cfg="bbbf"
+loadrt streamer depth=256 cfg="bfbf"
+# reset
 net mask-reset     <= streamer.0.pin.0
+# beam on
 net mask-beam      <= streamer.0.pin.1
+# mask test = (x < mask-xarg) ^ xop, 0 = moving left, 1 = moving right
 net mask-xop       <= streamer.0.pin.2
+# switch position
 net mask-xarg      <= streamer.0.pin.3
 net mask-empty     <= streamer.0.empty
 net mask-read => streamer.0.enable
@@ -106,16 +110,6 @@ addf or2-mask-read mask-thread
 net mask-forward => or2-mask-read.in0
 net mask-ffw => or2-mask-read.in1
 net mask-read <= or2-mask-read.out
-
-# laser-gmask <=  mask-not-empty && mask-beam
-addf not-mask-not-empty mask-thread
-net mask-empty => not-mask-not-empty.in
-net mask-not-empty <= not-mask-not-empty.out
-
-addf and2-laser-gmask mask-thread
-net mask-beam => and2-laser-gmask.in0
-net mask-not-empty => and2-laser-gmask.in1
-net laser-gmask <= and2-laser-gmask.out
 
 addf streamer.0 mask-thread
 
@@ -164,13 +158,8 @@ net laser-digital => or2-laser-gcode.in0
 net laser-zaxis => or2-laser-gcode.in1
 net laser-gcode <= or2-laser-gcode.out
 
-addf or2-laser-fine mask-thread
-net laser-gcode => or2-laser-fine.in0
-net laser-gmask => or2-laser-fine.in1
-net laser-fine <= or2-laser-fine.out
-
 addf and2-laser-final mask-thread
-net laser-fine => and2-laser-final.in0
+net laser-gcode => and2-laser-final.in0
 net laser-spindle => and2-laser-final.in1
 net laser-final <= and2-laser-final.out
 
