@@ -183,8 +183,8 @@ setp hm2_5i25.0.gpio.005.invert_output true
 net xenable => hm2_5i25.0.gpio.005.out
 
 # Get limit switch signals from DB25 pin 13,12
-net home-x hm2_5i25.0.gpio.016.in => axis.0.home-sw-in
-net home-y hm2_5i25.0.gpio.015.in => axis.1.home-sw-in
+net home-x hm2_5i25.0.gpio.016.in_not => axis.0.home-sw-in
+net home-y hm2_5i25.0.gpio.015.in_not => axis.1.home-sw-in
 #net limit-w hm2_5i25.0.gpio.014.in => axis.8.neg-lim-sw-in
 
 # Get E-stop signal from DB25 pin 15
