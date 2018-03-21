@@ -29,6 +29,10 @@ loadrt and2 names=and2-mask-forward,and2-laser-gmask,and2-laser-final,and2-jogge
 loadrt or2 names=or2-mask-command-done,or2-mask-not-ffw,or2-mask-read,or2-laser-gcode,or2-laser-fine
 loadrt encoder num_chan=1
 
+#Custom components added 2018/03
+loadrt binaryscaler names=bs1
+loadrt laserpwmcalc names=lpc1
+
 
 # Slow thread for logic (more logic components are added further down)
 addf hm2_5i25.0.read              servo-thread
@@ -40,6 +44,8 @@ addf pid.w.do-pid-calcs           servo-thread
 addf hm2_5i25.0.write             servo-thread
 addf charge-pump                  servo-thread
 
+
+addf bs1                          servo-thread
 
 ###################################################################################
 # Raster Mask - stream in laser on/off commands behind AXIS's back
@@ -171,6 +177,36 @@ net laser-final <= and2-laser-final.out
 setp hm2_5i25.0.gpio.000.is_output true
 net laser-final => hm2_5i25.0.gpio.000.out
 
+##################################################
+# Laser power input pins
+
+#hm2_5i25.0.gpio.017.in = 1000
+#hm2_5i25.0.gpio.019.in = 0100
+#hm2_5i25.0.gpio.021.in = 0010
+#hm2_5i25.0.gpio.023.in = 0001
+#hm2_5i25.0.gpio.025.in = defeat
+
+##################################################
+# Red dot laser
+net red_dot_en <= bs1.red-dot-en
+
+#Laser
+setp hm2_5i25.0.gpio.027.is_output true
+net red_dot_en => hm2_5i25.0.gpio.027.out
+
+#Solenoid
+setp hm2_5i25.0.gpio.026.is_output true
+net red_dot_en => hm2_5i25.0.gpio.026.out
+
+
+##################################################
+# Variable Power ( via switches )
+
+net pow8  => bs1.in-3   <= hm2_5i25.0.gpio.017.in
+net pow4  => bs1.in-2   <= hm2_5i25.0.gpio.019.in
+net pow2  => bs1.in-1   <= hm2_5i25.0.gpio.021.in
+net pow1  => bs1.in-0   <= hm2_5i25.0.gpio.023.in
+net pow_d => bs1.defeat <= hm2_5i25.0.gpio.025.in_not
 
 ##################################################
 # Motion
