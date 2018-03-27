@@ -206,7 +206,7 @@ net pow8  => bs1.in-3   <= hm2_5i25.0.gpio.017.in
 net pow4  => bs1.in-2   <= hm2_5i25.0.gpio.019.in
 net pow2  => bs1.in-1   <= hm2_5i25.0.gpio.021.in
 net pow1  => bs1.in-0   <= hm2_5i25.0.gpio.023.in
-net pow_d => bs1.defeat <= hm2_5i25.0.gpio.025.in_not
+net pow_d => bs1.defeat <= hm2_5i25.0.gpio.025.in
 
 ##################################################
 # Motion
