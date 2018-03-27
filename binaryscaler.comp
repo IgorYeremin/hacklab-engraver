@@ -1,6 +1,6 @@
 component binaryscaler "Calculates fractional float value from 4 binary input switches";
 pin in bit in-#[4] "Value of n-th bit";
-pin in bit defeat "Laser output defeat switch";
+pin in bit defeat "Laser output defeat switch, 1 = defeat = laser off";
 pin out float value_out = 0 "Output float (0.0 to 1.0)";
 pin out bit red_dot_en "Red Dot Enable";
 
@@ -16,7 +16,7 @@ FUNCTION(_) {
 		value |= (in(i) << i);
 	}
 
-	if(defeat)
+	if(!defeat)
 	{
 		value_out = (double)value / 15.0;
 	}
@@ -25,5 +25,5 @@ FUNCTION(_) {
 		value_out = 0;
 	}
 	
-	red_dot_en = !value && defeat;
+	red_dot_en = !value && !defeat;
 }
