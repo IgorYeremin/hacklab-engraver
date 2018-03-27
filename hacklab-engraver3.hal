@@ -13,7 +13,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_K
 loadrt hostmot2
 # 3 axis of stepgens
 # TODO: use PWM to drive laser output for PPI
-loadrt hm2_pci config=" num_encoders=0 num_pwmgens=0 num_stepgens=3"
+loadrt hm2_pci config=" num_encoders=0 num_pwmgens=1 num_stepgens=3"
 setp    hm2_5i25.0.watchdog.timeout_ns 5000000
 # PID for velocity control of stepgens
 loadrt pid names=pid.x,pid.y,pid.w
@@ -36,8 +36,10 @@ loadrt laserpwmcalc names=lpc1
 
 # Slow thread for logic (more logic components are added further down)
 addf hm2_5i25.0.read              servo-thread
+addf bs1                          servo-thread
 addf motion-command-handler       servo-thread
 addf motion-controller            servo-thread
+addf lpc1                         mask-thread
 addf pid.x.do-pid-calcs           servo-thread
 addf pid.y.do-pid-calcs           servo-thread
 addf pid.w.do-pid-calcs           servo-thread
@@ -45,8 +47,6 @@ addf hm2_5i25.0.write             servo-thread
 addf charge-pump                  servo-thread
 
 
-addf bs1                          servo-thread
-addf lpc1                         mask-thread
 
 ###################################################################################
 # Raster Mask - stream in laser on/off commands behind AXIS's back
@@ -175,8 +175,6 @@ net laser-spindle => and2-laser-final.in1
 net laser-final <= and2-laser-final.out
 
 # laser-final => DB25 pin 1
-setp hm2_5i25.0.gpio.000.is_output true
-net laser-final => hm2_5i25.0.gpio.000.out
 
 ##################################################
 # Laser power input pins
@@ -229,13 +227,13 @@ net laser-zaxis => lpc1.virtual-z-in
 setp lpc1.pwm-min 0.004
 setp lpc1.pwm-max 0.94
 
-##net laser-power2 lpc1.pwm-out => hm2_5i25.0.pwmgen.00.value
+net laser-power2 lpc1.pwm-out => hm2_5i25.0.pwmgen.00.value
 net adaptive-feed lpc1.adaptive-out => motion.adaptive-feed
 
-##setp hm2_5i25.0.pwmgen.00.scale 1000
-##setp hm2_5i25.0.pwmgen.pwm_frequency 5000
-##setp hm2_5i25.0.pwmgen.00.output-type 1
-##setp hm2_5i25.0.pwmgen.00.enable 1
+setp hm2_5i25.0.pwmgen.00.scale 1
+setp hm2_5i25.0.pwmgen.pwm_frequency 5000
+setp hm2_5i25.0.pwmgen.00.output-type 1
+setp hm2_5i25.0.pwmgen.00.enable 1
 
 ##################################################
 # Motion
