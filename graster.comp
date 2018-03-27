@@ -1,0 +1,31 @@
+component graster "Laser raster engraving using hal streamer";
+pin in bit reset "Reset process. From streamer pin.0";
+pin in bit beam "Beam enable. From streamer pin.1";
+pin in bit xop "Next segment match direction, 0 = left, 1 = right. From streamer pin.2";
+pin in float xarg "Next segment match position. From streamer.pin.3";
+pin in bit empty "No active raster. From streamer.empty";
+
+pin out bit read "Read next segment. To streamer.enable";
+
+pin in float xpos "Scanning axis current position. From axis.joint-pos-fb";
+pin in bit spindle_in "Spindle on. From motion.spindle-on";
+
+pin out bit beam_out "Beam output at current position";
+
+function _;
+license "GPL";
+;;
+
+FUNCTION(_) {
+    // compare next segment position to current
+    int pos_lte = xpos <= xarg;
+    // account for direction
+    int pos_test = pos_lte ^ xop;
+
+    // read next segment 
+    read = (spindle_in && (pos_test || reset)) || (!spindle_in || reset);
+
+    // set beam according to current segment
+    // combined with other outputs with an AND, so output is 1 when not rastering
+    beam_out = empty || beam;
+}
