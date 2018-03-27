@@ -1,0 +1,50 @@
+component laserpwmcalc "Compute laser PWM value from required power, current velocity, and available laser power";
+pin in float power_in "Required power density (power fraction/machine unit) = material severance energy (J/mm^2) * material thickness (mm) / machine output power (W)";
+pin in float vel_in "Current velocity from motion.current-vel";
+pin in float requested_vel_in "motion.requested-vel";
+pin in float raster_in "Raster power scale factor from graster";
+pin in bit raster_off "Raster off, from graster empty";
+pin in float override_in "Additional override scaling factor";
+
+param rw float pwm_min "Minimum PWM output value (tickle pulse)";
+param rw float pwm_max "Minimum PWM output value (if laser saturates before 1.0)";
+
+pin out float pwm_out = 0 "PWM duty cycle to pwmgen.value (0 to 1.0)";
+pin out float adaptive_out = 1 "Adaptive feed control to motion.adaptive-feed";
+
+function _;
+license "GPL";
+;;
+
+FUNCTION(_) {
+	double raster = (raster_off ? 1 : raster_in);
+	double desired_power = power_in * raster * override_in;
+	double adaptive_out_tmp;
+	double final_power;
+	double pwm;
+	
+	if(desired_power > 0 && requested_vel_in > 0)
+	{
+		double max_vel = 1.0 / desired_power;
+		
+		adaptive_out_tmp = max_vel / requested_vel_in; //If max_vel is F200 and requested_vel_in is F400, adaptive_out = 0.5
+		if(adaptive_out_tmp > 1)
+		{
+			adaptive_out_tmp = 1;
+		}
+	}
+	else
+	{
+		adaptive_out_tmp = 1;
+	}
+
+	adaptive_out = adaptive_out_tmp;
+	
+	final_power = desired_power * vel_in;
+	pwm = final_power * (pwm_max - pwm_min) + pwm_min;
+
+	if (pwm > pwm_max) pwm = pwm_max;
+	if (pwm < pwm_min) pwm = pwm_min;
+
+	pwm_out = pwm;
+}
