@@ -196,6 +196,31 @@ net wstep => parport.0.pin-06-out
 setp parport.0.pin-06-out-reset 0
 net wdir => parport.0.pin-07-out
 
+##################################################
+# Combine all power inputs and feed to PWM
+
+net spindle-power motion.spindle-speed-out => lpc1.power-in
+net motion-vel motion.current-vel => lpc1.vel-in
+net requested-vel motion.requested-vel => lpc1.requested-vel-in
+setp lpc1.raster-in 1.0
+net mask-empty => lpc1.raster-off
+net switch-override-in bs1.value-out => lpc1.override-in
+
+# min = tickle pulse, max < 1 because of low tube efficiency > 90%
+setp lpc1.pwm-min 0.004
+setp lpc1.pwm-max 0.94
+
+##net laser-power2 lpc1.pwm-out => hm2_5i25.0.pwmgen.00.value
+net adaptive-feed lpc1.adaptive-out => motion.adaptive-feed
+
+##setp hm2_5i25.0.pwmgen.00.scale 1000
+##setp hm2_5i25.0.pwmgen.pwm_frequency 5000
+##setp hm2_5i25.0.pwmgen.00.output-type 1
+##setp hm2_5i25.0.pwmgen.00.enable 1
+
+##################################################
+# Motion
+
 
 # Send X amp enable to PPT 16. This signal actually controls
 # _all_ motors on the machine.
