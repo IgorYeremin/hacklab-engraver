@@ -41,6 +41,7 @@ addf stepgen.update-freq          servo-thread
 
 
 addf bs1                          servo-thread
+addf lpc1                         mask-thread
 
 ###################################################################################
 # Raster Mask - stream in laser on/off commands behind AXIS's back
@@ -202,8 +203,8 @@ net wdir => parport.0.pin-07-out
 net spindle-power motion.spindle-speed-out => lpc1.power-in
 net motion-vel motion.current-vel => lpc1.vel-in
 net requested-vel motion.requested-vel => lpc1.requested-vel-in
-setp lpc1.raster-in 1.0
-net laser-gmask => lpc1.raster-on
+net mask-beam => lpc1.raster-in
+net mask-not-empty => lpc1.raster-on
 net switch-override-in bs1.value-out => lpc1.override-in
 net laser-digital => lpc1.digital-in
 net laser-zaxis => lpc1.virtual-z-in
