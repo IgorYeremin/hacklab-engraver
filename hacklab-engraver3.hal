@@ -46,6 +46,7 @@ addf charge-pump                  servo-thread
 
 
 addf bs1                          servo-thread
+addf lpc1                         mask-thread
 
 ###################################################################################
 # Raster Mask - stream in laser on/off commands behind AXIS's back
@@ -207,6 +208,34 @@ net pow4  => bs1.in-2   <= hm2_5i25.0.gpio.019.in
 net pow2  => bs1.in-1   <= hm2_5i25.0.gpio.021.in
 net pow1  => bs1.in-0   <= hm2_5i25.0.gpio.023.in
 net pow_d => bs1.defeat <= hm2_5i25.0.gpio.025.in
+
+##################################################
+# Motion
+
+##################################################
+# Combine all power inputs and feed to PWM
+
+net spindle-power motion.spindle-speed-out => lpc1.power-in
+net motion-vel motion.current-vel => lpc1.vel-in
+net requested-vel motion.requested-vel => lpc1.requested-vel-in
+net mask-beam => lpc1.raster-in
+net mask-not-empty => lpc1.raster-on
+net switch-override-in bs1.value-out => lpc1.override-in
+net laser-digital => lpc1.digital-in
+net laser-zaxis => lpc1.virtual-z-in
+
+
+# min = tickle pulse, max < 1 because of low tube efficiency > 90%
+setp lpc1.pwm-min 0.004
+setp lpc1.pwm-max 0.94
+
+##net laser-power2 lpc1.pwm-out => hm2_5i25.0.pwmgen.00.value
+net adaptive-feed lpc1.adaptive-out => motion.adaptive-feed
+
+##setp hm2_5i25.0.pwmgen.00.scale 1000
+##setp hm2_5i25.0.pwmgen.pwm_frequency 5000
+##setp hm2_5i25.0.pwmgen.00.output-type 1
+##setp hm2_5i25.0.pwmgen.00.enable 1
 
 ##################################################
 # Motion
