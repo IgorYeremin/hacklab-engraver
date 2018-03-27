@@ -172,35 +172,13 @@ net laser-final <= and2-laser-final.out
 net laser-final => parport.0.pin-01-out
 
 ##################################################
-# Laser power input pins
-
-#hm2_5i25.0.gpio.017.in = 1000
-#hm2_5i25.0.gpio.019.in = 0100
-#hm2_5i25.0.gpio.021.in = 0010
-#hm2_5i25.0.gpio.023.in = 0001
-#hm2_5i25.0.gpio.025.in = defeat
-
-##################################################
-# Red dot laser
-net red_dot_en <= bs1.red-dot-en
-
-#Laser
-setp hm2_5i25.0.gpio.027.is_output true
-net red_dot_en => hm2_5i25.0.gpio.027.out
-
-#Solenoid
-setp hm2_5i25.0.gpio.026.is_output true
-net red_dot_en => hm2_5i25.0.gpio.026.out
-
-
-##################################################
 # Variable Power ( via switches )
 
-net pow8  => bs1.in-3   <= hm2_5i25.0.gpio.017.in
-net pow4  => bs1.in-2   <= hm2_5i25.0.gpio.019.in
-net pow2  => bs1.in-1   <= hm2_5i25.0.gpio.021.in
-net pow1  => bs1.in-0   <= hm2_5i25.0.gpio.023.in
-net pow_d => bs1.defeat <= hm2_5i25.0.gpio.025.in_not
+setp bs1.in-3 1
+setp bs1.in-2 1
+setp bs1.in-1 1
+setp bs1.in-0 0
+setp bs1.defeat 0
 
 ##################################################
 # Motion
