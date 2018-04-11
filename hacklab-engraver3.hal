@@ -240,9 +240,9 @@ setp hm2_5i25.0.pwmgen.00.enable 1
 #net unhome-x hm2_5i25.0.gpio.003.in => halui.joint.0.unhome 
 #net unhome-y hm2_5i25.0.gpio.003.in => halui.joint.1.unhome 
 #net unhome-w hm2_5i25.0.gpio.003.in => halui.joint.8.unhome 
-net estop-ext => halui.joint.0.unhome 
-net estop-ext => halui.joint.1.unhome 
-net estop-ext => halui.joint.8.unhome 
+#net estop-ext => halui.joint.0.unhome 
+#net estop-ext => halui.joint.1.unhome 
+#net estop-ext => halui.joint.8.unhome 
 
 
 # Send X amp enable to DB25 pin 16. This signal actually controls
