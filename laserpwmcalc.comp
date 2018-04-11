@@ -9,8 +9,9 @@ pin in bit raster_on = 1 "Raster beam allow. From graster";
 pin in bit digital_in = 1 "Fast, motion synchronized switch from motion.digital-out";
 pin in float override_in = 1 "Additional override scaling factor";
 
-param rw float pwm_min "Minimum PWM output value (tickle pulse)";
+param rw float pwm_min "Minimum PWM output value (where laser DOES fire)";
 param rw float pwm_max "Minimum PWM output value (if laser saturates before 1.0)";
+param rw float pwm_tickle "Tickle pulse pwm (highest where laser WILL NOT fire.";
 
 pin out float pwm_out = 0 "PWM duty cycle to pwmgen.value (0 to 1.0)";
 pin out float adaptive_out = 1 "Adaptive feed control to motion.adaptive-feed";

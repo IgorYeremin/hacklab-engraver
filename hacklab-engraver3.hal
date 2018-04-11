@@ -222,7 +222,8 @@ net laser-digital 					=> lpc1.digital-in
 net switch-override-in 	bs1.value-out 			=> lpc1.override-in
 
 # min = tickle pulse, max < 1 because of low tube efficiency > 90%
-setp lpc1.pwm-min 0.004
+setp lpc1.pwm-tickle 0.01
+setp lpc1.pwm-min 0.02
 setp lpc1.pwm-max 0.94
 
 net laser-power2 lpc1.pwm-out => hm2_5i25.0.pwmgen.00.value
