@@ -37,10 +37,10 @@ FUNCTION(_) {
 	{
 		desired_power = (power_in > 0) ? power_in : -1 * power_in; //Absolute value of power_in
 		
-		if(compatibility_in && desired_power > 0) //Ignore spindle scaling factor in compatibility mode.
-		{
-			desired_power = 1/requested_vel_in; 
-		}
+		//if(compatibility_in && desired_power > 0) //Ignore spindle scaling factor in compatibility mode.
+		//{
+		//	desired_power = 1/requested_vel_in; 
+		//}
 		desired_power = desired_power * (raster_on ? raster_in * 1.0 : 1.0) * override_in;
 	}
 	
@@ -63,21 +63,34 @@ FUNCTION(_) {
 	
 	dbg_desired_power = desired_power;
 	
-	if(vel_in == 0) //Don't allow laser to fire while stationary. In the future this should be possible for users to do this manually.
-	{
-		final_power = 0;
-	}
-	else //Slower motion will reduce laser power accordingly.
-	{	
-		final_power = desired_power * vel_in;
-	}
 	
+	if(compatibility_in)
+	{
+		final_power = desired_power;
+	}
+	else
+	{
+		if(vel_in == 0) //Don't allow laser to fire while stationary. In the future this should be possible for users to do this manually.
+		{
+			final_power = 0;
+		}
+		else //Slower motion will reduce laser power accordingly.
+		{	
+			final_power = desired_power * vel_in;
+		}
+	}
 	dbg_final_power = final_power;
 	
-	pwm = final_power * (pwm_max - pwm_min) + pwm_min;
+	if(final_power == 0)
+	{
+		pwm = pwm_tickle;
+	}
+	else
+	{
+		pwm = final_power * (pwm_max - pwm_min) + pwm_min;
 
-	if (pwm > pwm_max) pwm = pwm_max;
-	if (pwm < pwm_min) pwm = pwm_min;
-
+		if (pwm > pwm_max) pwm = pwm_max;
+		if (pwm < pwm_min) pwm = pwm_min;
+	}
 	pwm_out = pwm;
 }
