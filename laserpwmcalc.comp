@@ -88,6 +88,16 @@ FUNCTION(_) {
 	}
 	else
 	{
+		if(!compatibility_in) //Laser power linearity correction. Measured 2018-05-15
+		{
+			//Curve fit from 3% to 90+% actual pwm
+			//PWM to Actual is -0.79847*s^2 + 1.8166*s^1 - 0.011707
+			//(Inverse) Desired to PWM is 0.54644*s^2 + 0.36874*s^1 + 0  [Forced curve fit to zero offset]
+			final_power = 0.54644*final_power*final_power + 0.36874*final_power;
+		
+		}
+		dbg_final_power = final_power;
+
 		pwm = final_power * (pwm_max - pwm_min) + pwm_min;
 
 		if (pwm > pwm_max) pwm = pwm_max;
