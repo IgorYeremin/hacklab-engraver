@@ -75,8 +75,9 @@ else:
       if pbar.poll() != -1: raise
 
       #if len(w) > 0:
-      if line.count(" ") == 3:
-        reset, beam, xop, xarg = line.split(" ")
+      if line.count(" ") >= 3:
+	things = line.split(" ")
+        reset, beam, xop, xarg = things[0], things[1], things[2], things[3]
         # offset the x coordinate
         machine_x = float(xarg) + coord_offset[0]
         fout.write("%s %s %s %.3f\n" % (reset, beam, xop, machine_x))
